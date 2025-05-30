@@ -64,3 +64,41 @@ async def main():
     await task2
 
 asyncio.run(main())
+
+
+
+import asyncio
+
+
+counters = {
+    "Counter 1": 0,
+    "Counter 2": 0,
+    "Counter 3": 0,
+}
+
+max_counts = {
+    "Counter 1": 13,
+    "Counter 2": 7,
+    "Counter 3": 15
+}
+
+delays = {
+    "Counter 1": 1,
+    "Counter 2": 2,
+    "Counter 3": 0.5
+}
+
+async def counter(counter_name, sec):
+    while counters[counter_name] < max_counts[counter_name]:
+        counters[counter_name] += 1
+        await asyncio.sleep(sec)
+        print(f'{counter_name}: {counters[counter_name]}')
+
+
+async def main():
+    tasks = []
+    for counter_name, delay in delays.items():
+        tasks.append(asyncio.create_task(counter(counter_name, delay)))
+    await asyncio.gather(*tasks)
+
+asyncio.run(main())
