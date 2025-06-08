@@ -135,4 +135,80 @@ asyncio.run(main())
 
 
 
+import asyncio
 
+async def set_after(fut, delay, value):
+    await asyncio.sleep(delay)
+    fut.set_result(value)
+
+async def main():
+    future = asyncio.Future()
+    asyncio.ensure_future(set_after(future, 1, 'done'))
+    result = await future
+    print(result)
+
+asyncio.run(main())
+
+
+
+import asyncio
+
+async def set_future_result(value, delay):
+    print(
+        f"Задача начата. Установка результата '{value}' через {delay} секунд.")
+    await asyncio.sleep(delay)
+    print("Результат установлен.")
+    return value
+
+async def create_and_use_future():
+    future = asyncio.Future()
+    if not future.done():
+        print("Состояние Task до выполнения: Ожидание")
+    else:
+        print("Состояние Task до выполнения: Завершено")
+    print("Задача запущена, ожидаем завершения...")
+    result = await asyncio.create_task(set_future_result('Успех', 2))
+
+    if not future.done():
+        print("Состояние Task после выполнения: Завершено")
+    else:
+        print("Состояние Task после выполнения: Ожидание")
+    return result
+
+
+async def main():
+    result = await create_and_use_future()
+    print("Результат из Task:", result)
+
+
+asyncio.run(main())
+
+
+
+import asyncio
+
+async def set_future_result(value, delay):
+    print(f"Задача начата. Установка результата '{value}' через {delay} секунд.")
+    await asyncio.sleep(delay)
+    print("Результат установлен.")
+    return value
+
+async def create_and_use_future():
+    result = asyncio.ensure_future(set_future_result("Успех", 2))
+    if not result.done():
+        print("Состояние Task до выполнения: Ожидание")
+
+    else:
+
+        print("Состояние Task до выполнения: Завершено")
+    print("Задача запущена, ожидаем завершения...")
+    await result
+    if not result.done():
+        print("Состояние Task после выполнения: Ожидание")
+
+    else:
+
+        print("Состояние Task после выполнения: Завершено")
+
+    print("Результат из Task:", result.result())
+asyncio.run(create_and_use_future())
