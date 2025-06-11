@@ -212,3 +212,117 @@ async def create_and_use_future():
 
     print("Результат из Task:", result.result())
 asyncio.run(create_and_use_future())
+
+
+
+import asyncio
+
+async def async_operation():
+    print("Начало асинхронной операции.")
+    await asyncio.sleep(2)
+    future = asyncio.Future()
+    if not future.cancelled():
+        print("Асинхронная операция успешно завершилась.")
+    try:
+        result = future.result()
+        print(result)
+    except asyncio.CancelledError:
+        print("Асинхронная операция была отменена в процессе выполнения.")
+    raise
+
+
+
+import asyncio
+
+
+async def async_operation():
+    print("Начало асинхронной операции.")
+    try:
+        await asyncio.sleep(2)
+        print("Асинхронная операция успешно завершилась.")
+    except asyncio.CancelledError:
+        print("Асинхронная операция была отменена в процессе выполнения.")
+        raise
+
+async def main():
+    print("Главная корутина запущена.")
+    task = asyncio.create_task(async_operation())
+    await asyncio.sleep(0.1)
+    print("Попытка отмены Task.")
+    task.cancel()
+    try:
+        result = await task
+        print("Результат Task:", result)
+    except asyncio.CancelledError:
+        print("Обработка исключения: Task был отменен.")
+    if task.cancelled():
+        print("Проверка: Task был отменен.")
+    else:
+        print("Проверка: Task не был отменен.")
+    print("Главная корутина завершена.")
+
+asyncio.run(main())
+
+
+
+import asyncio
+
+
+async def first_function(x):
+    print(f"Выполняется первая функция с аргументом {x}")
+    await asyncio.sleep(1)
+    result = x + 1
+    print(f"Первая функция завершилась с результатом {result}")
+    return result
+
+async def second_function(x):
+    print(f"Выполняется вторая функция с аргументом {x}")
+    await asyncio.sleep(1)
+    result = x * 2
+    print(f"Вторая функция завершилась с результатом {result}")
+    return result
+
+async def third_function(x):
+    print(f"Выполняется третья функция с аргументом {x}")
+    await asyncio.sleep(1)
+    result = x + 3
+    print(f"Третья функция завершилась с результатом {result}")
+    return result
+
+async def fourth_function(x):
+    print(f"Выполняется четвертая функция с аргументом {x}")
+    await asyncio.sleep(1)
+    result = x ** 2
+    print(f"Четвертая функция завершилась с результатом {result}")
+    return result
+
+async def main():
+    initial_value = 1
+    print("Начало цепочки асинхронных вызовов")
+    first_result = await asyncio.create_task(first_function(initial_value))
+    second_result = await asyncio.create_task(second_function(first_result))
+    third_result = await asyncio.create_task(third_function(second_result))
+    final_result = await asyncio.create_task(fourth_function(third_result))
+    print(f"Конечный результат цепочки вызовов: {final_result}")
+
+asyncio.run(main())
+
+
+
+import asyncio
+import random
+
+
+async def waiter(future):
+    await future
+    print(f"future выполнен, результат {future.result()}. Корутина waiter() может продолжить работу")
+
+async def setter(future):
+    await asyncio.sleep(random.randint(1,3))
+    future.set_result(True)
+
+async def main():
+    future = asyncio.Future()
+    await asyncio.gather(waiter(future), setter(future))
+
+asyncio.run(main())
